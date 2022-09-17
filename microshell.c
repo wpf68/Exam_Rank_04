@@ -36,6 +36,12 @@ int	ft_exec(char **ag, int i, int temp, char **env)
 	return (1);
 }
 
+void	ft_fatal(void)
+{
+	write(2, "error: fatal\n", 13);
+	exit(1);
+}
+
 int	main(int ar, char **ag, char **env)
 {
 	int	i = 0;
@@ -61,8 +67,8 @@ int	main(int ar, char **ag, char **env)
 		else if (i != 0 && (ag[i] == NULL || strcmp(ag[i], ";") == 0))
 		{
 			pid = fork();
-			if (pid == -1)
-				ft_print("error: fatal", NULL);
+			if (pid < 0)
+				ft_fatal();
 			if (pid == 0)
 			{
 				ft_exec(ag, i, temp, env);
@@ -72,18 +78,18 @@ int	main(int ar, char **ag, char **env)
 			{
 				close(temp);
 			//	while (waitpid(-1, NULL, WUNTRACED) != -1);
-			//	waitpid(pid, NULL, 0);
-				waitpid(-1, NULL, WUNTRACED);
+				waitpid(pid, NULL, 0);
+			//	waitpid(-1, NULL, WUNTRACED);
 				temp = dup(STDIN_FILENO);
 			}
 		} 
 		else if (i != 0 && strcmp(ag[i], "|") == 0)
 		{
-			if (pipe(fd) == -1)
-				ft_print("error: fatal", NULL);
+			if (pipe(fd) < 0)
+				ft_fatal();
 			pid = fork();
-			if (pid == -1)
-				ft_print("error: fatal", NULL);
+			if (pid < 0)
+				ft_fatal();
 			if (pid == 0)
 			{
 				dup2(fd[1], STDOUT_FILENO);
